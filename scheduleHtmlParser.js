@@ -4,9 +4,27 @@ function scheduleHtmlParser(html) {
     //可使用正则匹配
     //可使用解析dom匹配，工具内置了$，跟jquery使用方法一样，直接用就可以了，参考：https://juejin.im/post/5ea131f76fb9a03c8122d6b9
     //以下为示例，您可以完全重写或在此基础上更改
-    let result = []
+    //大一
+    const wyl_startTime1 = ["08:00", "08:50", "09:45", "10:35", "13:00", "13:50", "14:45", "15:35", "18:30", "19:20"]
+    const wyl_endTime1 = ["08:45", "09:35", "10:30", "11:20", "13:45", "14:35", "15:30", "16:20", "18:30", "19:20"]
 
+    //大二
+    const wyl_startTime2 = ["08:10", "09:00", "10:00", "10:50", "13:10", "14:00", "15:00", "15:50", "18:30", "19:20"]
+    const wyl_endTime2 = ["08:55", "09:45", "10:45", "11:35", "13:55", "14:45", "15:45", "16:35", "18:30", "19:20"]
+
+    //大三
+    const wyl_startTime3 = ["08:20", "09:10", "10:15", "11:05", "13:20", "14:10", "15:15", "16:05", "18:30", "19:20"]
+    const wyl_endTime3 = ["09:05", "09:55", "11:00", "11:50", "14:05", "14:55", "16:00", "16:50", "18:30", "19:20"]
+
+    //大四
+    const wyl_startTime4 = ["08:30", "09:20", "10:30", "11:20", "13:30", "14:20", "15:30", "16:20", "18:30", "19:20"]
+    const wyl_endTime4 = ["09:15", "10:05", "11:15", "12:05", "14:15", "15:05", "16:15", "17:05", "18:30", "19:20"]
+
+    //算的头疼，没觉得code能力变强，倒是觉得心算能力增强了
+
+    let result = []
     let bbb = $('#table1 .timetable_con')
+    let wyl_id = $('.timetable_title h6')[1].children[0].data.split('：')[1]
     for (let u = 0; u < bbb.length; u++) {
         let re = { sections: [], weeks: [] }
         let aaa = $(bbb[u]).find('span')
@@ -57,5 +75,223 @@ function scheduleHtmlParser(html) {
         result.push(re)
     }
     console.log(result)
-    return { courseInfos: result }
+    console.log(wyl_id)
+    let wyl_sectionTime
+    if (wyl_id[0] == 1) {
+        if (wyl_id[1] == 7) {
+            wyl_sectionTime = [{
+                    "section": 1,
+                    "wyl_startTime": wyl_startTime4[0],
+                    "wyl_endTime": wyl_endTime4[0]
+                },
+                {
+                    "section": 2,
+                    "wyl_startTime": wyl_startTime4[1],
+                    "wyl_endTime": wyl_endTime4[1]
+                },
+                {
+                    "section": 3,
+                    "wyl_startTime": wyl_startTime4[2],
+                    "wyl_endTime": wyl_endTime4[2]
+                },
+                {
+                    "section": 4,
+                    "wyl_startTime": wyl_startTime4[3],
+                    "wyl_endTime": wyl_endTime4[3]
+                },
+                {
+                    "section": 5,
+                    "wyl_startTime": wyl_startTime4[4],
+                    "wyl_endTime": wyl_endTime4[4]
+                },
+                {
+                    "section": 6,
+                    "wyl_startTime": wyl_startTime4[5],
+                    "wyl_endTime": wyl_endTime4[5]
+                },
+                {
+                    "section": 7,
+                    "wyl_startTime": wyl_startTime4[6],
+                    "wyl_endTime": wyl_endTime4[6]
+                },
+                {
+                    "section": 8,
+                    "wyl_startTime": wyl_startTime4[7],
+                    "wyl_endTime": wyl_endTime4[7]
+                },
+                {
+                    "section": 9,
+                    "wyl_startTime": wyl_startTime4[8],
+                    "wyl_endTime": wyl_endTime4[8]
+                },
+                {
+                    "section": 10,
+                    "wyl_startTime": wyl_startTime4[9],
+                    "wyl_endTime": wyl_endTime4[9]
+                }
+            ];
+        } else if (wyl_id[1] == 8) {
+            wyl_sectionTime = [{
+                    "section": 1,
+                    "wyl_startTime": wyl_startTime3[0],
+                    "wyl_endTime": wyl_endTime3[0]
+                },
+                {
+                    "section": 2,
+                    "wyl_startTime": wyl_startTime3[1],
+                    "wyl_endTime": wyl_endTime3[1]
+                },
+                {
+                    "section": 3,
+                    "wyl_startTime": wyl_startTime3[2],
+                    "wyl_endTime": wyl_endTime3[2]
+                },
+                {
+                    "section": 4,
+                    "wyl_startTime": wyl_startTime3[3],
+                    "wyl_endTime": wyl_endTime3[3]
+                },
+                {
+                    "section": 5,
+                    "wyl_startTime": wyl_startTime3[4],
+                    "wyl_endTime": wyl_endTime3[4]
+                },
+                {
+                    "section": 6,
+                    "wyl_startTime": wyl_startTime3[5],
+                    "wyl_endTime": wyl_endTime3[5]
+                },
+                {
+                    "section": 7,
+                    "wyl_startTime": wyl_startTime3[6],
+                    "wyl_endTime": wyl_endTime3[6]
+                },
+                {
+                    "section": 8,
+                    "wyl_startTime": wyl_startTime3[7],
+                    "wyl_endTime": wyl_endTime3[7]
+                },
+                {
+                    "section": 9,
+                    "wyl_startTime": wyl_startTime3[8],
+                    "wyl_endTime": wyl_endTime3[8]
+                },
+                {
+                    "section": 10,
+                    "wyl_startTime": wyl_startTime3[9],
+                    "wyl_endTime": wyl_endTime3[9]
+                }
+            ];
+        } else if (wyl_id[1] == 9) {
+            wyl_sectionTime = [{
+                    "section": 1,
+                    "wyl_startTime": wyl_startTime2[0],
+                    "wyl_endTime": wyl_endTime2[0]
+                },
+                {
+                    "section": 2,
+                    "wyl_startTime": wyl_startTime2[1],
+                    "wyl_endTime": wyl_endTime2[1]
+                },
+                {
+                    "section": 3,
+                    "wyl_startTime": wyl_startTime2[2],
+                    "wyl_endTime": wyl_endTime2[2]
+                },
+                {
+                    "section": 4,
+                    "wyl_startTime": wyl_startTime2[3],
+                    "wyl_endTime": wyl_endTime2[3]
+                },
+                {
+                    "section": 5,
+                    "wyl_startTime": wyl_startTime2[4],
+                    "wyl_endTime": wyl_endTime2[4]
+                },
+                {
+                    "section": 6,
+                    "wyl_startTime": wyl_startTime2[5],
+                    "wyl_endTime": wyl_endTime2[5]
+                },
+                {
+                    "section": 7,
+                    "wyl_startTime": wyl_startTime2[6],
+                    "wyl_endTime": wyl_endTime2[6]
+                },
+                {
+                    "section": 8,
+                    "wyl_startTime": wyl_startTime2[7],
+                    "wyl_endTime": wyl_endTime2[7]
+                },
+                {
+                    "section": 9,
+                    "wyl_startTime": wyl_startTime2[8],
+                    "wyl_endTime": wyl_endTime2[8]
+                },
+                {
+                    "section": 10,
+                    "wyl_startTime": wyl_startTime2[9],
+                    "wyl_endTime": wyl_endTime2[9]
+                }
+            ];
+        }
+    } else if (wyl_id[0] == 2) {
+        if (wyl_id[1] == 0) {
+            wyl_sectionTime = [{
+                    "section": 1,
+                    "wyl_startTime": wyl_startTime1[0],
+                    "wyl_endTime": wyl_endTime1[0]
+                },
+                {
+                    "section": 2,
+                    "wyl_startTime": wyl_startTime1[1],
+                    "wyl_endTime": wyl_endTime1[1]
+                },
+                {
+                    "section": 3,
+                    "wyl_startTime": wyl_startTime1[2],
+                    "wyl_endTime": wyl_endTime1[2]
+                },
+                {
+                    "section": 4,
+                    "wyl_startTime": wyl_startTime1[3],
+                    "wyl_endTime": wyl_endTime1[3]
+                },
+                {
+                    "section": 5,
+                    "wyl_startTime": wyl_startTime1[4],
+                    "wyl_endTime": wyl_endTime1[4]
+                },
+                {
+                    "section": 6,
+                    "wyl_startTime": wyl_startTime1[5],
+                    "wyl_endTime": wyl_endTime1[5]
+                },
+                {
+                    "section": 7,
+                    "wyl_startTime": wyl_startTime1[6],
+                    "wyl_endTime": wyl_endTime1[6]
+                },
+                {
+                    "section": 8,
+                    "wyl_startTime": wyl_startTime1[7],
+                    "wyl_endTime": wyl_endTime1[7]
+                },
+                {
+                    "section": 9,
+                    "wyl_startTime": wyl_startTime1[8],
+                    "wyl_endTime": wyl_endTime1[8]
+                },
+                {
+                    "section": 10,
+                    "wyl_startTime": wyl_startTime1[9],
+                    "wyl_endTime": wyl_endTime1[9]
+                }
+            ];
+        }
+    }
+    return {
+        courseInfos: result,
+        sectionTimes: wyl_sectionTime
+    }
 }
