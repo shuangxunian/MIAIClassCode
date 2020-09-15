@@ -1,147 +1,297 @@
-function weekStr2IntList(week) {
-    // 将全角逗号替换为半角逗号
-    let reg = new RegExp("，", "g");
-    week.replace(reg, ',');
-    let weeks = [];
-
-    // 以逗号为界分割字符串，遍历分割的字符串
-    week.split(",").forEach(w => {
-        if (w.search('-') != -1) {
-            let range = w.split("-");
-            let start = parseInt(range[0]);
-            let end = parseInt(range[1]);
-            for (let i = start; i <= end; i++) {
-                if (!weeks.includes(i)) {
-                    weeks.push(i);
-                }
-            }
-        } else if (w.length != 0) {
-            let v = parseInt(w);
-            if (!weeks.includes(v)) {
-                weeks.push(v);
-            }
-        }
-    });
-    return weeks;
-}
-
-function getTime(text, start, span) {
-    let t = text.replace('{', '').replace('}', '').split('第');
-    const weekdays = ['', '周一', '周二', '周三', '周四', '周五', '周六', '周日']
-
-    let weekday = 0;
-    let sections = [];
-    let week = [];
-
-    // 从元素位置和属性推断出节次
-    for (let i = start; i < start + span; i++) {
-        sections.push({
-            section: i
-        });
-    }
-
-    // 有时候数据错误，得处理下
-    if (t.length == 0) {
-        week = [...new Array(100).keys()];
-    } else if (t.length == 2) {
-        week = weekStr2IntList(text.split('|')[0].replace('{', '').replace('第', '').replace('周', ''));
-    } else {
-        let weekdayStr = t[0];
-        let jcStr = t[1];
-        let weekStr = t[2];
-
-        weekday = weekdays.indexOf(weekdayStr)
-
-        // 如果课程有节次信息，以节次信息为准
-        let list = jcStr.replace('节', '').split(',');
-        sections.length = 0;
-        list.forEach(v => {
-            sections.push({
-                section: parseInt(v)
-            });
-        });
-
-        weekStr = weekStr.replace('周');
-        let flag = 0;
-        if (weekStr.search('单') != -1) {
-            weekStr = weekStr.replace('|单', '');
-            flag = 1;
-        } else if (weekStr.search('双') != -1) {
-            weekStr = weekStr.replace('|双', '');
-            flag = 2;
-        }
-        if (flag == 1) {
-            week = weekStr2IntList(weekStr).filter(v => v % 2 != 0);
-        } else if (flag == 2) {
-            week = weekStr2IntList(weekStr).filter(v => v % 2 == 0);
-        } else {
-            week = weekStr2IntList(weekStr);
-        }
-    }
-
-    return {
-        weekday: weekday,
-        sections: sections,
-        week: week
-    };
-}
-
 function scheduleHtmlParser(html) {
-    var $ = cheerio.load(html, { decodeEntities: false });
-    let result = [];
+    //除函数名外都可编辑
+    //传入的参数为上一步函数获取到的html
+    //可使用正则匹配
+    //可使用解析dom匹配，工具内置了$，跟jquery使用方法一样，直接用就可以了，参考：https://juejin.im/post/5ea131f76fb9a03c8122d6b9
+    //以下为示例，您可以完全重写或在此基础上更改
+    //大一
+    const wyl_startTime1 = ["08:00", "08:50", "09:45", "10:35", "13:00", "13:50", "14:45", "15:35", "18:30", "19:20"]
+    const wyl_endTime1 = ["08:45", "09:35", "10:30", "11:20", "13:45", "14:35", "15:30", "16:20", "18:30", "19:20"]
 
-    $('#Table1').find('tbody').find('tr').each(function(row, _) {
-        // 跳过前面两行
-        if (row > 1) {
-            let offset = 0; //星期的偏移量
-            $(this).find('td').each(function(col, _) {
-                if ($(this).text().length <= 4 && $(this).text().length > 0) {
-                    offset++;
-                } else {
-                    let infos = $(this).html().split('<br>');
-                    infos = infos.filter(e => e.length != 0);
+    //大二
+    const wyl_startTime2 = ["08:10", "09:00", "10:00", "10:50", "13:10", "14:00", "15:00", "15:50", "18:30", "19:20"]
+    const wyl_endTime2 = ["08:55", "09:45", "10:45", "11:35", "13:55", "14:45", "15:45", "16:35", "18:30", "19:20"]
 
-                    let hasNext = true;
-                    let index = 0;
-                    while (hasNext) {
-                        let name = infos[index];
-                        let teacherName = infos[index + 2];
-                        let place = infos[index + 3];
-                        let span = parseInt($(this).attr('rowspan'));
-                        let time = getTime(infos[index + 1], row - 1, span);
-                        let weekday = time.weekday;
+    //大三
+    const wyl_startTime3 = ["08:20", "09:10", "10:15", "11:05", "13:20", "14:10", "15:15", "16:05", "18:30", "19:20"]
+    const wyl_endTime3 = ["09:05", "09:55", "11:00", "11:50", "14:05", "14:55", "16:00", "16:50", "18:30", "19:20"]
 
-                        // 存在没有星期的情况，通过元素位置判断星期
-                        if (weekday == 0) {
-                            weekday = col - offset + 1;
-                        }
+    //大四
+    const wyl_startTime4 = ["08:30", "09:20", "10:30", "11:20", "13:30", "14:20", "15:30", "16:20", "18:30", "19:20"]
+    const wyl_endTime4 = ["09:15", "10:05", "11:15", "12:05", "14:15", "15:05", "16:15", "17:05", "18:30", "19:20"]
 
-                        // 构建课程，添加至结果
-                        let course = {
-                            name: name,
-                            position: place,
-                            teacher: teacherName,
-                            weeks: time.week,
-                            day: weekday,
-                            sections: time.sections,
-                        };
-                        //console.info(course);
-                        result.push(course);
+    //算的头疼，没觉得code能力变强，倒是觉得心算能力增强了
 
-                        if (infos[index + 4] != undefined) {
-                            index += 4;
-                        } else {
-                            hasNext = false;
-                        }
-                    }
-
-                    console.log(infos);
-                }
-            });
+    let result = []
+    let bbb = $('#table1 .timetable_con')
+    let wyl_id = $('.timetable_title h6')[1].children[0].data.split('：')[1]
+    for (let u = 0; u < bbb.length; u++) {
+        let re = { sections: [], weeks: [] }
+        let aaa = $(bbb[u]).find('span')
+        let week = $(bbb[u]).parent('td')[0].attribs.id
+        if (week) {
+            re.day = week.split('-')[0]
         }
-    });
+        for (let i = 0; i < aaa.length; i++) {
 
-    console.info(result);
+            if (aaa[i].attribs.title == '上课地点') {
 
-    return { courseInfos: result }
+                for (let j = 0; j < $(aaa[i]).next()[0].children.length; j++) {
+                    re.position = $(aaa[i]).next()[0].children[j].data
+                }
+            }
+            if (aaa[i].attribs.title == '节/周') {
+
+                for (let j = 0; j < $(aaa[i]).next()[0].children.length; j++) {
+
+                    let lesson = $(aaa[i]).next()[0].children[j].data
+                    for (let a = Number(lesson.split(')')[0].split('(')[1].split('-')[0]); a < Number(lesson.split(')')[0].split('(')[1].split('-')[1].split('节')[0]) + 1; a++) {
+
+                        re.sections.push({ section: a })
+                    }
+                    for (let a = Number(lesson.split(')')[1].split('-')[0]); a < Number(lesson.split(')')[1].split('-')[1].split('周')[0]) + 1; a++) {
+
+                        re.weeks.push(a)
+                    }
+                }
+            }
+
+            if (aaa[i].attribs.title == '教师') {
+
+                for (let j = 0; j < $(aaa[i]).next()[0].children.length; j++) {
+                    re.teacher = $(aaa[i]).next()[0].children[j].data
+                }
+            }
+
+            if (aaa[i].attribs.class == 'title') {
+
+                for (let j = 0; j < $(aaa[i]).children()[0].children.length; j++) {
+                    re.name = $(aaa[i]).children()[0].children[j].data
+
+                }
+            }
+
+        }
+        result.push(re)
+    }
+    console.log(result)
+    console.log(wyl_id)
+    let wyl_sectionTime
+    if (wyl_id[0] == 1) {
+        if (wyl_id[1] == 7) {
+            wyl_sectionTime = [{
+                    "section": 1,
+                    "wyl_startTime": wyl_startTime4[0],
+                    "wyl_endTime": wyl_endTime4[0]
+                },
+                {
+                    "section": 2,
+                    "wyl_startTime": wyl_startTime4[1],
+                    "wyl_endTime": wyl_endTime4[1]
+                },
+                {
+                    "section": 3,
+                    "wyl_startTime": wyl_startTime4[2],
+                    "wyl_endTime": wyl_endTime4[2]
+                },
+                {
+                    "section": 4,
+                    "wyl_startTime": wyl_startTime4[3],
+                    "wyl_endTime": wyl_endTime4[3]
+                },
+                {
+                    "section": 5,
+                    "wyl_startTime": wyl_startTime4[4],
+                    "wyl_endTime": wyl_endTime4[4]
+                },
+                {
+                    "section": 6,
+                    "wyl_startTime": wyl_startTime4[5],
+                    "wyl_endTime": wyl_endTime4[5]
+                },
+                {
+                    "section": 7,
+                    "wyl_startTime": wyl_startTime4[6],
+                    "wyl_endTime": wyl_endTime4[6]
+                },
+                {
+                    "section": 8,
+                    "wyl_startTime": wyl_startTime4[7],
+                    "wyl_endTime": wyl_endTime4[7]
+                },
+                {
+                    "section": 9,
+                    "wyl_startTime": wyl_startTime4[8],
+                    "wyl_endTime": wyl_endTime4[8]
+                },
+                {
+                    "section": 10,
+                    "wyl_startTime": wyl_startTime4[9],
+                    "wyl_endTime": wyl_endTime4[9]
+                }
+            ];
+        } else if (wyl_id[1] == 8) {
+            wyl_sectionTime = [{
+                    "section": 1,
+                    "wyl_startTime": wyl_startTime3[0],
+                    "wyl_endTime": wyl_endTime3[0]
+                },
+                {
+                    "section": 2,
+                    "wyl_startTime": wyl_startTime3[1],
+                    "wyl_endTime": wyl_endTime3[1]
+                },
+                {
+                    "section": 3,
+                    "wyl_startTime": wyl_startTime3[2],
+                    "wyl_endTime": wyl_endTime3[2]
+                },
+                {
+                    "section": 4,
+                    "wyl_startTime": wyl_startTime3[3],
+                    "wyl_endTime": wyl_endTime3[3]
+                },
+                {
+                    "section": 5,
+                    "wyl_startTime": wyl_startTime3[4],
+                    "wyl_endTime": wyl_endTime3[4]
+                },
+                {
+                    "section": 6,
+                    "wyl_startTime": wyl_startTime3[5],
+                    "wyl_endTime": wyl_endTime3[5]
+                },
+                {
+                    "section": 7,
+                    "wyl_startTime": wyl_startTime3[6],
+                    "wyl_endTime": wyl_endTime3[6]
+                },
+                {
+                    "section": 8,
+                    "wyl_startTime": wyl_startTime3[7],
+                    "wyl_endTime": wyl_endTime3[7]
+                },
+                {
+                    "section": 9,
+                    "wyl_startTime": wyl_startTime3[8],
+                    "wyl_endTime": wyl_endTime3[8]
+                },
+                {
+                    "section": 10,
+                    "wyl_startTime": wyl_startTime3[9],
+                    "wyl_endTime": wyl_endTime3[9]
+                }
+            ];
+        } else if (wyl_id[1] == 9) {
+            wyl_sectionTime = [{
+                    "section": 1,
+                    "wyl_startTime": wyl_startTime2[0],
+                    "wyl_endTime": wyl_endTime2[0]
+                },
+                {
+                    "section": 2,
+                    "wyl_startTime": wyl_startTime2[1],
+                    "wyl_endTime": wyl_endTime2[1]
+                },
+                {
+                    "section": 3,
+                    "wyl_startTime": wyl_startTime2[2],
+                    "wyl_endTime": wyl_endTime2[2]
+                },
+                {
+                    "section": 4,
+                    "wyl_startTime": wyl_startTime2[3],
+                    "wyl_endTime": wyl_endTime2[3]
+                },
+                {
+                    "section": 5,
+                    "wyl_startTime": wyl_startTime2[4],
+                    "wyl_endTime": wyl_endTime2[4]
+                },
+                {
+                    "section": 6,
+                    "wyl_startTime": wyl_startTime2[5],
+                    "wyl_endTime": wyl_endTime2[5]
+                },
+                {
+                    "section": 7,
+                    "wyl_startTime": wyl_startTime2[6],
+                    "wyl_endTime": wyl_endTime2[6]
+                },
+                {
+                    "section": 8,
+                    "wyl_startTime": wyl_startTime2[7],
+                    "wyl_endTime": wyl_endTime2[7]
+                },
+                {
+                    "section": 9,
+                    "wyl_startTime": wyl_startTime2[8],
+                    "wyl_endTime": wyl_endTime2[8]
+                },
+                {
+                    "section": 10,
+                    "wyl_startTime": wyl_startTime2[9],
+                    "wyl_endTime": wyl_endTime2[9]
+                }
+            ];
+        }
+    } else if (wyl_id[0] == 2) {
+        if (wyl_id[1] == 0) {
+            wyl_sectionTime = [{
+                    "section": 1,
+                    "wyl_startTime": wyl_startTime1[0],
+                    "wyl_endTime": wyl_endTime1[0]
+                },
+                {
+                    "section": 2,
+                    "wyl_startTime": wyl_startTime1[1],
+                    "wyl_endTime": wyl_endTime1[1]
+                },
+                {
+                    "section": 3,
+                    "wyl_startTime": wyl_startTime1[2],
+                    "wyl_endTime": wyl_endTime1[2]
+                },
+                {
+                    "section": 4,
+                    "wyl_startTime": wyl_startTime1[3],
+                    "wyl_endTime": wyl_endTime1[3]
+                },
+                {
+                    "section": 5,
+                    "wyl_startTime": wyl_startTime1[4],
+                    "wyl_endTime": wyl_endTime1[4]
+                },
+                {
+                    "section": 6,
+                    "wyl_startTime": wyl_startTime1[5],
+                    "wyl_endTime": wyl_endTime1[5]
+                },
+                {
+                    "section": 7,
+                    "wyl_startTime": wyl_startTime1[6],
+                    "wyl_endTime": wyl_endTime1[6]
+                },
+                {
+                    "section": 8,
+                    "wyl_startTime": wyl_startTime1[7],
+                    "wyl_endTime": wyl_endTime1[7]
+                },
+                {
+                    "section": 9,
+                    "wyl_startTime": wyl_startTime1[8],
+                    "wyl_endTime": wyl_endTime1[8]
+                },
+                {
+                    "section": 10,
+                    "wyl_startTime": wyl_startTime1[9],
+                    "wyl_endTime": wyl_endTime1[9]
+                }
+            ];
+        }
+    }
+    return {
+        courseInfos: result,
+        sectionTimes: wyl_sectionTime
+    }
 }
