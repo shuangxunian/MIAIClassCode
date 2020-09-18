@@ -44,35 +44,94 @@ function scheduleHtmlParser(html) {
             }
             if (aaa[i].attribs.title == '节/周') {
 
+                // for (let j = 0; j < $(aaa[i]).next()[0].children.length; j++) {
+
+                //     let lesson = $(aaa[i]).next()[0].children[j].data
+
+                //     for (let a = Number(lesson.split(')')[0].split('(')[1].split('-')[0]); a < Number(lesson.split(')')[0].split('(')[1].split('-')[1].split('节')[0]) + 1; a++) {
+
+                //         re.sections.push({ section: a })
+                //     }
+                //     //如果这个是空的，就不再到下边进行计算
+                //     //这里需要特判一下周六的形式政策
+
+                //     let wylt0 = lesson.split(')')[1].split(',')[0]
+                //     let wylt1 = lesson.split(')')[1].split(',')[1]
+
+                //     if (wylt1 == undefined) {
+                //         let wylfir = Number(lesson.split(')')[1].split('-')[1].split('周')[0]);
+                //         console.log("look!")
+
+                //         console.log(lesson.split(')')[1])
+                //         for (let a = Number(lesson.split(')')[1].split('-')[0]); a < wylfir + 1; a++) {
+                //             re.weeks.push(a)
+                //         }
+                //     }
+                //     if (lesson[8] == '周' && lesson[9] == ',') {
+                //         re.weeks.push(Number(lesson.split(')')[1].split('周,')[0]))
+                //         re.weeks.push(Number(lesson.split(')')[1].split('周,')[1].split('周')[0]))
+                //     }
+                //     if (lesson[9] == '周' && lesson[10] == ',') {
+                //         re.weeks.push(Number(lesson.split(')')[1].split('周,')[0]))
+                //         re.weeks.push(Number(lesson.split(')')[1].split('周,')[1].split('周')[0]))
+                //     }
+                //     if (lesson.split(')')[1].split('-')[1] == null) continue;
+                // }
+
                 for (let j = 0; j < $(aaa[i]).next()[0].children.length; j++) {
-
                     let lesson = $(aaa[i]).next()[0].children[j].data
-
                     for (let a = Number(lesson.split(')')[0].split('(')[1].split('-')[0]); a < Number(lesson.split(')')[0].split('(')[1].split('-')[1].split('节')[0]) + 1; a++) {
-
                         re.sections.push({ section: a })
                     }
-                    //如果这个是空的，就不再到下边进行计算
-                    //这里需要特判一下周六的形式政策
-                    if (lesson[8] == '周' && lesson[9] == ',') {
-                        re.weeks.push(Number(lesson.split(')')[1].split('周,')[0]))
-                        re.weeks.push(Number(lesson.split(')')[1].split('周,')[1].split('周')[0]))
+                    //
+                    let wylt0 = lesson.split(')')[1].split(',')[0]
+                    let wylt1 = lesson.split(')')[1].split(',')[1]
+
+                    // console.log("look0!")
+                    // console.log(wylt0)
+                    // console.log(wylt0.length)
+
+                    //>=4代表把单周扔出去
+                    if (wylt0.length >= 4) {
+                        let wylfir = Number(wylt0.split('-')[1].split('周')[0]);
+                        // console.log("look1!")
+
+                        // console.log(wylfir)
+                        for (let a = Number(wylt0.split('-')[0]); a < wylfir + 1; a++) {
+                            re.weeks.push(a)
+                        }
                     }
-                    if (lesson[9] == '周' && lesson[10] == ',') {
-                        re.weeks.push(Number(lesson.split(')')[1].split('周,')[0]))
-                        re.weeks.push(Number(lesson.split(')')[1].split('周,')[1].split('周')[0]))
+
+                    //处理第二个连贯周
+                    if (wylt1 !== undefined && wylt1.length >= 4) {
+                        let wylfir = Number(wylt1.split('-')[1].split('周')[0]);
+                        // console.log("look2!")
+                        // console.log(wylt1.split('-')[0]);
+                        // console.log(wylfir)
+                        for (let a = Number(wylt1.split('-')[0]); a < wylfir + 1; a++) {
+                            re.weeks.push(a)
+                        }
                     }
-                    if (lesson.split(')')[1].split('-')[1] == null) continue;
 
-                    let wylfir = Number(lesson.split(')')[1].split('-')[1].split('周')[0]);
-
-                    for (let a = Number(lesson.split(')')[1].split('-')[0]); a < wylfir + 1; a++) {
-
-
-
-                        re.weeks.push(a)
+                    //处理形势与政策
+                    if (wylt1 !== undefined && wylt1.indexOf('-') === -1 && wylt0.indexOf('-') === -1) {
+                        re.weeks.push(wylt0[0])
+                        re.weeks.push(wylt1[0])
                     }
+
+                    //处理单周
+                    if (wylt1 === undefined && wylt0.indexOf('-') === -1) {
+                        re.weeks.push(wylt0[0])
+                    }
+
+
+                    // for (let a = Number(lesson.split(')')[1].split('-')[0]); a < Number(lesson.split(')')[1].split('-')[1].split('周')[0]) + 1; a++) {
+
+                    //     re.weeks.push(a)
+                    // }
                 }
+
+
             }
 
             if (aaa[i].attribs.title == '教师') {
