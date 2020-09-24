@@ -1,27 +1,25 @@
 function scheduleHtmlProvider(iframeContent = "", frameContent = "", dom = document) {
-    let frg2089_courses = "";
-    let frg2089_allItem = dom.getElementById('iframeautoheight').contentDocument.body.getElementsByTagName('table')[1].getElementsByTagName('td');
-    for (let frg2089_i = 0; frg2089_i < frg2089_allItem.length; frg2089_i++) {
-        let frg2089_raw = frg2089_allItem[frg2089_i].innerHTML;
-
-        let frg2089_data = frg2089_raw.split('<br>');
-        while (frg2089_data.length >= 4) {
-            let frg2089_name;
-            while (frg2089_name == 'undefined' || !frg2089_name) frg2089_name = frg2089_data.shift();
-            frg2089_courses += '{"name":"' + frg2089_name + '",';
-            frg2089_courses += '"time":"' + frg2089_data.shift() + '",';
-            frg2089_courses += '"teacher":"' + frg2089_data.shift() + '",';
-            frg2089_courses += '"place":"' + frg2089_data.shift() + '"},';
-
-            if (frg2089_data.length >= 7) {
-                frg2089_data.shift();
-                frg2089_data.shift();
-                frg2089_data.shift();
-            } else
-                break;
+    //输出数组
+    let wyl_output = "";
+    //拿到表格dom
+    let wyl_alldom = dom.getElementById('iframeautoheight').contentDocument.body.getElementsByTagName('table')[1].getElementsByTagName('td');
+    //把表头扔了，从16开始
+    for (let wyl_i = 16; wyl_i < wyl_alldom.length; wyl_i++) {
+        //拿到每个课，从br截断
+        let wyl_data = wyl_alldom[wyl_i].innerHTML.split('<br>');
+        while (1) {
+            //如果br下一个不是空的话，代表有地点，直接写入
+            if (wyl_data[1] != undefined) {
+                wyl_output += '{"classname":"' + wyl_data.shift() + '",';
+                wyl_output += '"classattribute":"' + wyl_data.shift() + '",';
+                wyl_output += '"classweek":"' + wyl_data.shift() + '",';
+                wyl_output += '"classteacher":"' + wyl_data.shift() + '",';
+                wyl_output += '"classroom":"' + wyl_data.shift() + '"},';
+            }
+            //如果返回的是空的话，跳出循环
+            if (wyl_data.shift() == undefined) break;
         }
-
     }
-
-    return ('<div>[' + frg2089_courses + ']</div>').replace('},]', '}]');
+    //返回html
+    return ('<div>[' + wyl_output + ']</div>').replace('},]', '}]');
 }

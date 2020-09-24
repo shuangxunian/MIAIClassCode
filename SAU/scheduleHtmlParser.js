@@ -121,7 +121,7 @@ function scheduleHtmlParser(html) {
 
                     //处理单周
                     if (wylt1 === undefined && wylt0.indexOf('-') === -1) {
-                        re.weeks.push(wylt0[0])
+                        re.weeks.push(wylt0.split('周')[0])
                     }
 
 
